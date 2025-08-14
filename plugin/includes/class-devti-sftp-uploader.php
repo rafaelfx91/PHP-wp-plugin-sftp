@@ -37,9 +37,10 @@ class SFTPUploader {
 			}
 		}*/
         // Carrega phpseclib embutido se a classe não existir
-        if ( ! class_exists('\phpseclib3\Net\SFTP') ) {
-            require_once DEVTI_PLUGIN_DIR . 'includes/phpseclib/autoload.php';
-        }
+            // Carregar phpseclib interno, caso não exista
+            if ( ! class_exists('\phpseclib3\Net\SFTP') ) {
+                require_once plugin_dir_path(__FILE__) . 'includes/phpseclib/autoload.php';
+            }
 
 
 		// Fallback: extensão ssh2
