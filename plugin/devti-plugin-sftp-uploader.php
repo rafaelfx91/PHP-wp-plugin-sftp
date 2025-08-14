@@ -28,6 +28,10 @@ define('DEVTI_PLUGIN_URL', plugin_dir_url(__FILE__));
 require_once DEVTI_PLUGIN_DIR . 'includes/class-devti-sftp-uploader.php';
 require_once DEVTI_PLUGIN_DIR . 'includes/class-devti-admin.php';
 
+if ( ! class_exists('\phpseclib3\Net\SFTP') ) {
+    require_once plugin_dir_path(__FILE__) . 'includes/phpseclib/autoload.php';
+}
+
 /**
  * Inicializa i18n.
  */

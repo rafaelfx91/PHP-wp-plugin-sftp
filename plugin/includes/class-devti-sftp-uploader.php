@@ -19,7 +19,7 @@ class SFTPUploader {
 		$settings = $this->sanitize_settings($settings);
 
 		// Tenta phpseclib 3
-		if (class_exists('\phpseclib3\Net\SFTP')) {
+		/*if (class_exists('\phpseclib3\Net\SFTP')) {
 			try {
 				$sftp = new \phpseclib3\Net\SFTP($settings['host'], (int) $settings['port'], 10);
 				if (!$sftp->login($settings['username'], $settings['password'])) {
@@ -35,7 +35,12 @@ class SFTPUploader {
 			} catch (\Throwable $e) {
 				return new WP_Error('devti_sftp_error', sprintf(__('Erro SFTP (phpseclib): %s', 'devti-plugin'), $e->getMessage()));
 			}
-		}
+		}*/
+        // Carrega phpseclib embutido se a classe não existir
+        if ( ! class_exists('\phpseclib3\Net\SFTP') ) {
+            require_once DEVTI_PLUGIN_DIR . 'includes/phpseclib/autoload.php';
+        }
+
 
 		// Fallback: extensão ssh2
 		if (function_exists('ssh2_connect')) {
