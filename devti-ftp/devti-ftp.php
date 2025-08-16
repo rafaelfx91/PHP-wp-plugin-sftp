@@ -75,7 +75,7 @@ class DevTi_FTP_Plugin {
             'user'      => '',
             'pass'      => '',
             'path'      => '', // usado como pasta remota
-            'local_path'      => '/wp-content/ai1wm-backups', // pasta local padrão @rafa
+            'local_path'      => '/wp-content/ai1wm-backups', // pasta local padrão @rafa 
             'extension' => '.wpress',
             // protocolo é inferido pela porta (22 = SFTP). Se quiser forçar, acrescente aqui uma flag.
         ];
@@ -125,11 +125,11 @@ class DevTi_FTP_Plugin {
             wp_die( esc_html__( 'Você não tem permissão para acessar esta página.', 'devti-ftp' ) );
         }
 
-        var_dump( get_option( 'devti_ftp_options' ) ); // Depuração @rafa
-        var_dump( get_option( 'devti_ftp_settings' ) ); // Depuração @rafa
-        global $wpdb;
-        echo 'Prefixo da tabela wp_options: ' . $wpdb->prefix . 'options<br>';
-        var_dump( get_option( DEVTIFTP_OPTION_KEY ) );  // Depuração @rafa
+        //var_dump( get_option( 'devti_ftp_options' ) ); // Depuração @rafa
+        //var_dump( get_option( 'devti_ftp_settings' ) ); // Depuração @rafa
+        // global $wpdb;
+        //echo 'Prefixo da tabela wp_options: ' . $wpdb->prefix . 'options<br>';
+        //var_dump( get_option( DEVTIFTP_OPTION_KEY ) );  // Depuração @rafa
 
 
 

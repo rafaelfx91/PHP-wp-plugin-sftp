@@ -5,14 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class DevTi_FTP_Logger {
 
-    /**
-     * Garante que o diretório de logs exista e esteja protegido
-     */
     public static function ensure_log_dir(): void {
         if ( ! is_dir( DEVTIFTP_LOG_DIR ) ) {
             wp_mkdir_p( DEVTIFTP_LOG_DIR );
         }
-        // Protege diretório
+        // Tenta proteger
         $ht = trailingslashit( DEVTIFTP_LOG_DIR ) . '.htaccess';
         if ( ! file_exists( $ht ) ) {
             @file_put_contents( $ht, "Deny from all\n" );
@@ -23,34 +20,15 @@ class DevTi_FTP_Logger {
         }
     }
 
-    /**
-     * Registra uma linha de log
-     *
-     * @param string $type
-     * @param string $message
-     * @param array  $context  (opcional) ['host' => '', 'port' => '', 'path' => '']
-     */
-    public static function log( string $type, string $message, array $context = [] ): void {
+    public static function log( string $type, string $message ): void {
         self::ensure_log_dir();
-
         $file = trailingslashit( DEVTIFTP_LOG_DIR ) . 'log-' . gmdate( 'Y-m-d' ) . '.txt';
-
-        $extra = '';
-        if ( ! empty( $context ) ) {
-            $host = $context['host'] ?? '-';
-            $port = $context['port'] ?? '-';
-            $path = $context['path'] ?? '-';
-            $extra = sprintf( " | host=%s port=%s pasta_destino=%s", $host, $port, $path );
-        }
-
         $line = sprintf(
-            "[%s] [%s] %s%s\n",
+            "[%s] [%s] %s\n",
             gmdate( 'Y-m-d H:i:s' ),
             strtoupper( $type ),
-            $message,
-            $extra
+            $message
         );
-
         @file_put_contents( $file, $line, FILE_APPEND );
     }
 }

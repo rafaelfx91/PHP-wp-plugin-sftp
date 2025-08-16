@@ -19,13 +19,12 @@ class DevTi_FTP_Client {
 
     public function __construct( array $options ) {
         $defaults = [
-            'host'       => '',
-            'port'       => '',
-            'user'       => '',
-            'pass'       => '',
-            'path'       => '',   // pasta remota
-            'local_path' => '',   // pasta local
-            'extension'  => '.wpress',
+            'host'      => '',
+            'port'      => '',
+            'user'      => '',
+            'pass'      => '',
+            'path'      => '',
+            'extension' => '.wpress',
         ];
         $this->opts = wp_parse_args( $options, $defaults );
 
@@ -94,6 +93,7 @@ class DevTi_FTP_Client {
         $remote = $this->opts['path'] ?: '/';
         if ( $this->isSftp ) {
             if ( ! @$this->sftp->chdir( $remote ) ) {
+                // tenta criar recursivamente
                 $this->mkdirs_sftp( $remote );
                 if ( ! @$this->sftp->chdir( $remote ) ) {
                     throw new Exception( sprintf( __( 'Não foi possível acessar/criar pasta remota: %s', 'devti-ftp' ), $remote ) );
@@ -122,30 +122,6 @@ class DevTi_FTP_Client {
                 throw new Exception( __( 'Sem permissão de escrita na pasta remota (FTP).', 'devti-ftp' ) );
             }
             @ftp_delete( $this->ftp, rtrim( $remote, '/' ) . '/' . $tmp );
-        }
-    }
-
-    /**
-     * Faz a varredura do local_path em busca de arquivos com a extensão
-     * configurada e envia para o path remoto.
-     */
-    public function migrate_files(): void {
-        $local_dir = self::resolve_local_dir( $this->opts['local_path'] );
-        $ext = ltrim( $this->opts['extension'], '.' );
-
-        if ( ! is_dir( $local_dir ) ) {
-            throw new Exception( sprintf( __( 'Diretório local inválido: %s', 'devti-ftp' ), $local_dir ) );
-        }
-
-        $files = glob( $local_dir . '/*.' . $ext );
-        if ( empty( $files ) ) {
-            throw new Exception( sprintf( __( 'Nenhum arquivo %s encontrado em: %s', 'devti-ftp' ), $this->opts['extension'], $local_dir ) );
-        }
-
-        foreach ( $files as $file ) {
-            $basename = basename( $file );
-            $this->upload( $file, $basename );
-            @unlink( $file ); // remove após envio
         }
     }
 
