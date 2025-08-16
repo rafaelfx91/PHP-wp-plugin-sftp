@@ -240,7 +240,7 @@ class DevTi_FTP_Plugin {
                 '</p></div>';
             } );
         } catch ( Exception $e ) {
-            DevTi_FTP_Logger::log( 'TEST_ERROR', $e->getMessage() );
+            DevTi_FTP_Logger::log( 'TEST_ERROR ASD', $e->getMessage() );
             add_action( 'admin_notices', function() use ( $e ) {
                 echo '<div class="notice notice-error"><p>' .
                     esc_html__( 'Falha no teste de conexão: ', 'devti-ftp' ) . esc_html( $e->getMessage() ) .
