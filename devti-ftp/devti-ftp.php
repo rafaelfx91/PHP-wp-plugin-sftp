@@ -74,7 +74,8 @@ class DevTi_FTP_Plugin {
             'port'      => '',
             'user'      => '',
             'pass'      => '',
-            'path'      => '', // usado como pasta local e remota
+            'path'      => '', // usado como pasta remota
+            'local_path'      => '/wp-content/ai1wm-backups', // pasta local padrão @rafa
             'extension' => '.wpress',
             // protocolo é inferido pela porta (22 = SFTP). Se quiser forçar, acrescente aqui uma flag.
         ];
@@ -216,17 +217,7 @@ class DevTi_FTP_Plugin {
         </div>
         <?php
     }
-    /* //codigo antigo
-    public function handle_save() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Permissão negada.', 'devti-ftp' ) );
-        }
-        check_admin_referer( 'devti_ftp_save', 'devti_ftp_nonce' );
-        // A própria Settings API salvará via register_setting
-        $redirect = add_query_arg( [ 'page' => 'devti-ftp', 'updated' => 'true' ], admin_url( 'options-general.php' ) );
-        wp_safe_redirect( $redirect );
-        exit;
-    }*/
+
     public function handle_save() {
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_die( esc_html__( 'Permissão negada.', 'devti-ftp' ) );
