@@ -124,6 +124,14 @@ class DevTi_FTP_Plugin {
             wp_die( esc_html__( 'Você não tem permissão para acessar esta página.', 'devti-ftp' ) );
         }
 
+        var_dump( get_option( 'devti_ftp_options' ) ); // Depuração @rafa
+        var_dump( get_option( 'devti_ftp_settings' ) ); // Depuração @rafa
+        global $wpdb;
+        echo 'Prefixo da tabela wp_options: ' . $wpdb->prefix . 'options<br>';
+        var_dump( get_option( DEVTIFTP_OPTION_KEY ) );  // Depuração @rafa
+
+
+
         $opts = $this->get_options();
         ?>
         <div class="wrap">
@@ -208,7 +216,7 @@ class DevTi_FTP_Plugin {
         </div>
         <?php
     }
-
+    /* //codigo antigo
     public function handle_save() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Permissão negada.', 'devti-ftp' ) );
@@ -218,7 +226,21 @@ class DevTi_FTP_Plugin {
         $redirect = add_query_arg( [ 'page' => 'devti-ftp', 'updated' => 'true' ], admin_url( 'options-general.php' ) );
         wp_safe_redirect( $redirect );
         exit;
+    }*/
+    public function handle_save() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( esc_html__( 'Permissão negada.', 'devti-ftp' ) );
     }
+    check_admin_referer( 'devti_ftp_save', 'devti_ftp_nonce' );
+
+    if ( isset( $_POST[ DEVTIFTP_OPTION_KEY ] ) ) {
+        update_option( DEVTIFTP_OPTION_KEY, $_POST[ DEVTIFTP_OPTION_KEY ] );
+    }
+
+    $redirect = add_query_arg( [ 'page' => 'devti-ftp', 'updated' => 'true' ], admin_url( 'options-general.php' ) );
+    wp_safe_redirect( $redirect );
+    exit;
+}
 
     public function handle_test() {
         if ( ! current_user_can( 'manage_options' ) ) {
