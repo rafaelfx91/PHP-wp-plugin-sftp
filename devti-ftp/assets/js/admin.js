@@ -3,12 +3,10 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         
         var $button = $(this);
-        var $spinner = $('#devtiftp-spinner');
-        var $results = $('#devtiftp-results');
+        var originalText = $button.text();
+        $button.text(devtiftp_vars.testing).prop('disabled', true);
         
-        $button.prop('disabled', true);
-        $spinner.show();
-        $results.hide().removeClass('success error');
+        $('#devtiftp-results').hide().removeClass('success error');
         
         $.ajax({
             url: devtiftp_vars.ajax_url,
@@ -19,56 +17,68 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    $results.html(response.data).addClass('success').show();
+                    $('#devtiftp-results').html('<p>' + response.data + '</p>')
+                        .addClass('success')
+                        .show();
                 } else {
-                    $results.html(devtiftp_vars.error + ' ' + response.data).addClass('error').show();
+                    $('#devtiftp-results').html('<p>' + response.data + '</p>')
+                        .addClass('error')
+                        .show();
                 }
             },
-            error: function(xhr, status, error) {
-                $results.html(devtiftp_vars.error + ' ' + error).addClass('error').show();
+            error: function(xhr) {
+                $('#devtiftp-results').html('<p>' + xhr.responseJSON.data + '</p>')
+                    .addClass('error')
+                    .show();
             },
             complete: function() {
-                $button.prop('disabled', false);
-                $spinner.hide();
+                $button.text(originalText).prop('disabled', false);
             }
         });
     });
     
-    $('#devtiftp-start-migration').on('click', function(e) {
+    $('#devtiftp-migrate-files').on('click', function(e) {
         e.preventDefault();
         
-        if (!confirm(devtiftp_vars.confirm_migration || 'Are you sure you want to start the migration? This will transfer and then delete files from your server.')) {
-            return;
-        }
-        
         var $button = $(this);
-        var $spinner = $('#devtiftp-spinner');
-        var $results = $('#devtiftp-results');
+        var originalText = $button.text();
+        $button.text(devtiftp_vars.migrating).prop('disabled', true);
         
-        $button.prop('disabled', true);
-        $spinner.show();
-        $results.hide().removeClass('success error');
+        $('#devtiftp-results').hide().removeClass('success error');
         
         $.ajax({
             url: devtiftp_vars.ajax_url,
             type: 'POST',
             data: {
-                action: 'devtiftp_start_migration',
+                action: 'devtiftp_migrate_files',
                 nonce: devtiftp_vars.nonce
             },
             success: function(response) {
                 if (response.success) {
-                    $results.html(response.data).addClass('success').show();
+                    var html = '<h3>' + response.data.total_files + ' arquivos encontrados, ' + 
+                               response.data.success_count + ' migrados com sucesso.</h3>';
+                    
+                    $.each(response.data.results, function(index, result) {
+                        html += '<div class="devtiftp-file-result ' + (result.success ? 'success' : 'error') + '">' +
+                                '<strong>' + result.file + '</strong>: ' + result.message + '</div>';
+                    });
+                    
+                    $('#devtiftp-results').html(html)
+                        .addClass('success')
+                        .show();
                 } else {
-                    $results.html(devtiftp_vars.error + ' ' + response.data).addClass('error').show();
+                    $('#devtiftp-results').html('<p>' + response.data + '</p>')
+                        .addClass('error')
+                        .show();
                 }
             },
-            error: function(xhr, status, error) {
-                $results.html(devtiftp_vars.error + ' ' + error).addClass('error').show();
+            error: function(xhr) {
+                $('#devtiftp-results').html('<p>' + xhr.responseJSON.data + '</p>')
+                    .addClass('error')
+                    .show();
             },
             complete: function() {
-                $button.prop('disabled', false);
-                $spinner.hide();
+                $button.text(originalText).prop('disabled', false);
             }
         });
     });

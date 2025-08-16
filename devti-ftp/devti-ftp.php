@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: DEVTIFTP Manager
+ * Plugin Name: DEVTIFTP - Gerenciador de Migração FTP/SFTP
  * Plugin URI: https://seusite.com/devti-ftp
- * Description: Plugin para gerenciamento de conexões FTP e migração de arquivos.
+ * Description: Plugin para gerenciar conexões FTP/SFTP e migrar arquivos.
  * Version: 1.0.0
  * Author: Seu Nome
  * Author URI: https://seusite.com
@@ -19,44 +19,62 @@ defined('ABSPATH') || exit;
 define('DEVTIFTP_VERSION', '1.0.0');
 define('DEVTIFTP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DEVTIFTP_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('DEVTIFTP_LOG_DIR', WP_CONTENT_DIR . '/logs-ftp/');
 
-// Carregar arquivos necessários
-require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-admin.php';
-require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-ftp.php';
-require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-migrator.php';
+// Verificar e criar diretório de logs
+if (!file_exists(DEVTIFTP_LOG_DIR)) {
+    wp_mkdir_p(DEVTIFTP_LOG_DIR);
+}
+
+// Carregar classes
+require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-logger.php';
+require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-ftp-handler.php';
+require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-file-migrator.php';
+require_once DEVTIFTP_PLUGIN_DIR . 'includes/class-admin-page.php';
 
 // Inicializar o plugin
 function devtiftp_init() {
-    // Carregar traduções
+    // Carregar texto para internacionalização
     load_plugin_textdomain('devti-ftp', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     
-    // Inicializar classes
-    DEVTIFTP_Admin::init();
+    // Inicializar página admin
+    new DEVTIFTP_Admin_Page();
 }
-
 add_action('plugins_loaded', 'devtiftp_init');
 
-// Ativação do plugin
-function devtiftp_activate() {
-    // Adicionar opções padrão se não existirem
-    if (!get_option('devtiftp_settings')) {
-        $defaults = array(
-            'host' => '',
-            'port' => '21',
-            'username' => '',
-            'password' => '',
-            'path' => '',
-            'extension' => 'wpress'
-        );
-        update_option('devtiftp_settings', $defaults);
-    }
-}
-
+// Registrar ativação e desativação
 register_activation_hook(__FILE__, 'devtiftp_activate');
+register_deactivation_hook(__FILE__, 'devtiftp_deactivate');
 
-// Desativação do plugin
-function devtiftp_deactivate() {
-    // Limpar quaisquer agendamentos ou transients
+function devtiftp_activate() {
+    // Verificar requisitos
+    if (!extension_loaded('ftp') && !extension_loaded('ssh2')) {
+        $error = 'O plugin DEVTIFTP requer pelo menos a extensão FTP ou SSH2 do PHP.';
+        DEVTIFTP_Logger::log($error);
+        wp_die($error);
+    }
+    
+    // Criar opções padrão
+    $default_options = array(
+        'host' => '',
+        'port' => '21',
+        'username' => '',
+        'password' => '',
+        'path' => '/',
+        'file_extension' => 'wpress',
+        'connection_type' => 'ftp' // ftp ou sftp
+    );
+    
+    add_option('devtiftp_settings', $default_options);
 }
 
-register_deactivation_hook(__FILE__, 'devtiftp_deactivate');
+function devtiftp_deactivate() {
+    // Limpar agendamentos se houver
+}
+
+require_once DEVTIFTP_PLUGIN_DIR . 'vendor/phpseclib/phpseclib/phpseclib/Net/SFTP.php';
+
+
+
+
+
